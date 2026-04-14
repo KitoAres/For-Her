@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Francin ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: rgba(255,255,255,0.03);
+    --pink: #f9a8c9;
+    --pink-glow: rgba(249,168,201,0.15);
+    --lavender: #c4b5fd;
+    --text: #e8e0d5;
+    --text-muted: rgba(232,224,213,0.55);
+    --final-color: #fde68a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .blob-1 {
+    width: 500px; height: 500px;
+    background: #f9a8c9;
+    top: -100px; left: -100px;
+    animation-duration: 25s;
+  }
+  .blob-2 {
+    width: 400px; height: 400px;
+    background: #c4b5fd;
+    bottom: 10%; right: -80px;
+    animation-duration: 18s;
+    animation-delay: -8s;
+  }
+  .blob-3 {
+    width: 300px; height: 300px;
+    background: #93c5fd;
+    top: 50%; left: 30%;
+    animation-duration: 22s;
+    animation-delay: -12s;
+  }
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 40px) scale(1.08); }
+  }
+
+  
+  .stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: var(--max-op, 0.7); transform: scale(1.2); }
+  }
+
+  
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 30px 120px;
+  }
+
+  
+  header {
+    text-align: center;
+    margin-bottom: 70px;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 0.3s;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 400;
+    color: var(--pink);
+    line-height: 1.2;
+    text-shadow: 0 0 60px rgba(249,168,201,0.4);
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: white;
+  }
+
+  .header-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--pink), transparent);
+    margin: 24px auto 0;
+  }
+
+  
+  .frase {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 1s ease, transform 1s ease;
+    font-size: clamp(15px, 2.2vw, 18px);
+    line-height: 1.75;
+    padding: 10px 0 10px 20px;
+    border-left: 1px solid transparent;
+    position: relative;
+    color: var(--text);
+  }
+
+  .frase::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 0;
+    background: var(--pink);
+    border-radius: 2px;
+    transition: height 0.6s ease 0.4s;
+    opacity: 0;
+  }
+
+  .frase.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .frase.visible::before {
+    height: 60%;
+    opacity: 0.5;
+  }
+
+  .frase strong {
+    color: var(--lavender);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  
+  .divider {
+    opacity: 0;
+    text-align: center;
+    margin: 40px 0;
+    transition: opacity 1s ease, transform 1s ease;
+    transform: translateY(10px);
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 3px;
+  }
+  .divider.visible { opacity: 1; transform: translateY(0); }
+  .divider span { display: inline-block; margin: 0 10px; }
+
+  
+  .final-section {
+    margin-top: 60px;
+    text-align: center;
+  }
+
+  .frase-final {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 3vw, 26px);
+    font-weight: 400;
+    color: var(--final-color);
+    text-shadow: 0 0 30px rgba(253,230,138,0.3);
+    padding: 6px 0;
+    border-left: none !important;
+    text-align: center;
+  }
+
+  .frase-final::before { display: none !important; }
+
+  
+  .grand-final {
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+    text-align: center;
+    margin-top: 60px;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .grand-final.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .grand-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: radial-gradient(ellipse at center, rgba(249,168,201,0.08), transparent 70%);
+  }
+
+  .grand-final-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 36px);
+    font-style: italic;
+    color: white;
+    line-height: 1.5;
+  }
+
+  .grand-final-text .highlight {
+    color: var(--pink);
+    font-size: 1.15em;
+    display: block;
+    margin-top: 8px;
+  }
+
+ 
+  .hearts-container {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .heart {
+    position: absolute;
+    bottom: -40px;
+    font-size: 14px;
+    opacity: 0;
+    animation: floatHeart linear infinite;
+    animation-play-state: paused;
+  }
+
+  @keyframes floatHeart {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.3; }
+    100% { transform: translateY(-110vh) rotate(720deg); opacity: 0; }
+  }
+
+  
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--pink), var(--lavender));
+    z-index: 100;
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px var(--pink);
+  }
+
+  
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cuando no estas solo quiero cerrar mis ojos 
+  /* Imaginar que te tengo presente 
+  /* Porque al cerebro le cuesta distinguir entre la realidad y la ficcion
+  /* Quizas por eso soy tan feliz en un futuro a tu lado que aun no pasa */
+  .scroll-hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 3s, bob 2s ease-in-out 4s infinite alternate;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    z-index: 10;
+  }
+
+  @keyframes bob {
+    from { transform: translateX(-50%) translateY(0); }
+    to   { transform: translateX(-50%) translateY(6px); }
+  }
+
+  .hidden-message {
+    display: none; 
+    /* Mensaje del programador: Hola, Francin. Si llegaste aquí leyendo el código fuente... 
+       significa que eres tan curiosa como él dice.
+       Jhoel te escribió cada una de estas palabras pensando en ti.
+       Eres su anomalía estadística favorita. 🩷 */
+  }
+</style>
+</head>
+<body>
+
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+
+<div class="stars" id="stars"></div>
+
+
+<div class="progress" id="progress"></div>
+
+
+<div class="hearts-container" id="hearts"></div>
+
+
+<div class="scroll-hint">↓ desplázate ↓</div>
+
+<div class="page">
+  <header>
+    <div class="header-eyebrow">para ti, solo para ti</div>
+    <h1>Cosas que descubrí<br><em>contigo</em></h1>
+    <div class="header-line"></div>
+  </header>
+
+  <div id="lista">
+
+    <div class="frase">Descubrí que tu sonrisa me calma</div>
+    <div class="frase">Descubrí que contigo el tiempo pasa diferente</div>
+    <div class="frase">Descubrí que puedo extrañar a alguien de verdad</div>
+    <div class="frase">Descubrí que eres especial… de una forma que no puedo explicar</div>
+    <div class="frase">Descubrí que puedo perderme en tus ojos y olvidar todo en ellos</div>
+
+    <div class="divider"><span>✦</span> el inicio <span>✦</span></div>
+
+    <div class="frase">Descubrí que todo empezó por algo tan simple como un <strong>cable perdido</strong></div>
+    <div class="frase">Descubrí que una conversación casual puede cambiarlo todo</div>
+    <div class="frase">Descubrí que a veces los errores llevan a las personas correctas</div>
+    <div class="frase">Descubrí que no sabía que te estaba conociendo… pero ya estaba pasando</div>
+
+    <div class="divider"><span>✦</span> tú <span>✦</span></div>
+
+    <div class="frase">Descubrí que eres más tranquila de lo que aparentas</div>
+    <div class="frase">Descubrí que tienes una forma única de ver el mundo</div>
+    <div class="frase">Descubrí que tu sinceridad no es frialdad, es autenticidad</div>
+    <div class="frase">Descubrí que no te gusta incomodar a nadie, y a la vez sí</div>
+    <div class="frase">Descubrí que valoras mucho la tranquilidad</div>
+    <div class="frase">Descubrí que te gustan los días nublados</div>
+    <div class="frase">Descubrí que encuentras paz en lo simple</div>
+    <div class="frase">Descubrí que caminar escuchando música te hace feliz</div>
+    <div class="frase">Descubrí que el lo-fi tiene algo especial para ti</div>
+    <div class="frase">Descubrí que el clima puede reflejar cómo te sientes</div>
+    <div class="frase">Descubrí que puedes reírte de ti misma</div>
+    <div class="frase">Descubrí que dices "jsjsjs" más de lo normal</div>
+    <div class="frase">Descubrí que incluso cuando te equivocas, lo haces adorable</div>
+    <div class="frase">Descubrí que puedes pasar de seria a caótica en segundos</div>
+    <div class="frase">Descubrí que tu forma de hablar tiene algo que engancha</div>
+
+    <div class="divider"><span>✦</span> nosotros <span>✦</span></div>
+
+    <div class="frase">Descubrí que contigo puedo ser yo sin filtros</div>
+    <div class="frase">Descubrí que no tengo que medir cada palabra contigo</div>
+    <div class="frase">Descubrí que me haces sentir en calma</div>
+    <div class="frase">Descubrí que contigo no hay incomodidad</div>
+    <div class="frase">Descubrí que me gusta cómo me haces sentir</div>
+    <div class="frase">Descubrí que quería seguir hablando contigo</div>
+    <div class="frase">Descubrí que amo quien soy cuando estoy contigo</div>
+    <div class="frase">Descubrí que me importabas más de lo que esperaba</div>
+    <div class="frase">Descubrí que pensaba en ti sin darme cuenta</div>
+    <div class="frase">Descubrí que quería conocerte más</div>
+    <div class="frase">Descubrí que eras diferente</div>
+    <div class="frase">Descubrí que tienes una forma curiosa de ver la vida</div>
+    <div class="frase">Descubrí que eres más profunda de lo que aparentas</div>
+    <div class="frase">Descubrí que puedes ser dulce sin intentarlo</div>
+    <div class="frase">Descubrí que tienes tu propio ritmo</div>
+    <div class="frase">Descubrí que contigo todo se siente más ligero</div>
+    <div class="frase">Descubrí que contigo las conversaciones fluyen sin esfuerzo</div>
+    <div class="frase">Descubrí que puedes hacer interesante cualquier tema</div>
+    <div class="frase">Descubrí que no necesito forzar nada contigo</div>
+    <div class="frase">Descubrí que me gusta hablar contigo incluso sin razón</div>
+    <div class="frase">Descubrí que tienes una mezcla rara entre calma y caos</div>
+    <div class="frase">Descubrí que puedes ser intensa sin darte cuenta</div>
+    <div class="frase">Descubrí que tienes tu propio estilo para todo</div>
+    <div class="frase">Descubrí que no intentas encajar… y eso te hace diferente</div>
+    <div class="frase">Descubrí que al inicio eras una desconocida… y ahora estás grabada en cada rincón de mis recuerdos</div>
+
+    <div class="divider"><span>✦</span> lo que creció <span>✦</span></div>
+
+    <div class="frase">Descubrí que me gusta cómo suena tu nombre</div>
+    <div class="frase">Descubrí que me quedo pensando en lo que dices</div>
+    <div class="frase">Descubrí que quiero seguir conociéndote</div>
+    <div class="frase">Descubrí que me importas más de lo que planeé</div>
+    <div class="frase">Descubrí que poco a poco te volviste importante</div>
+    <div class="frase">Descubrí que sin darme cuenta, te hice parte de mi día</div>
+    <div class="frase">Descubrí que esto creció sin que lo planeáramos</div>
+    <div class="frase">Descubrí que tienes algo que no puedo explicar</div>
+    <div class="frase">Descubrí que hay algo en ti que me hace quedarme</div>
+    <div class="frase">Descubrí que contigo todo se siente más natural</div>
+    <div class="frase">Descubrí que no quiero que esto sea algo pasajero</div>
+    <div class="frase">Descubrí que si fueras hombre… igual me arriesgaba</div>
+    <div class="frase">Descubrí que siempre puedo amarte más que ayer</div>
+    <div class="frase">Descubrí que eres y serás la <strong>anomalía estadística</strong> de mi vida</div>
+    <div class="frase">Descubrí que eres improbable, pero que estás aquí</div>
+    <div class="frase">Descubrí que relaciono cada aspecto de mi día con un rasgo tuyo</div>
+    <div class="frase">Descubrí que me brillan los ojos cuando hablo de ti</div>
+    <div class="frase">Descubrí que quiero pasar todos mis días contigo</div>
+    <div class="frase">Descubrí que puedo estar sin jugar ni ver TikToks en todo el día, pero no sin pensarte</div>
+    <div class="frase">Descubrí que detrás de ese frío hay calidez dentro de ti</div>
+    <div class="frase">Descubrí que prefiero contemplarte en silencio</div>
+    <div class="frase">Descubrí que me gusta cuando te emocionas cuando me hablas de ti</div>
+    <div class="frase">Descubrí que cada día es un paso más cerca al futuro ideal contigo</div>
+    <div class="frase">Descubrí que te gusta el azul y el verde</div>
+    <div class="frase">Descubrí que me gusta tu independencia</div>
+    <div class="frase">Descubrí que me gusta tocarte</div>
+    <div class="frase">Descubrí que tu aroma ataca a mi lado emocional sin preguntar</div>
+    <div class="frase">Descubrí que te escribo sin saberlo, pero con intención</div>
+    <div class="frase">Descubrí que te extraño cuando estás y cuando no</div>
+    <div class="frase">Descubrí que eres única ante mis ojos</div>
+    <div class="frase">Descubrí que nuestros nombres suenan bonitos juntos</div>
+    <div class="frase">Descubrí que caminar juntos es mi actividad favorita</div>
+    <div class="frase">Descubrí que lo cursi e intenso contigo es sinceridad y vulnerabilidad</div>
+    <div class="frase">Descubrí que te elijo cada día, y a cada segundo</div>
+    <div class="frase">Descubrí que si tú saltas, yo voy contigo</div>
+    <div class="frase">Descubrí que contigo no me siento perdido por mi pésimo sentido de orientación</div>
+    <div class="frase">Descubrí que a veces amar significa extrañar</div>
+    <div class="frase">Descubrí que el color de tus ojos iría bien en mi futuro</div>
+    <div class="frase">Descubrí que el silencio contigo no es incómodo</div>
+
+    <div class="divider"><span>✦</span> el lenguaje de Jhoel <span>✦</span></div>
+
+    <div class="frase">Descubrí que mi "sistema operativo" se siente más estable cuando estás cerca</div>
+    <div class="frase">Descubrí que eres la única persona por la que activaría el modo "prioridad máxima" sin pensarlo</div>
+    <div class="frase">Descubrí que mi lenguaje de amor tiene líneas de código que solo tú sabes compilar</div>
+    <div class="frase">Descubrí que me gusta analizarte, no como un objeto de estudio, sino como el misterio que quiero resolver toda la vida</div>
+    <div class="frase">Descubrí que tus "jsjsjs" me dan más dopamina que cualquier victoria en un videojuego</div>
+    <div class="frase">Descubrí que prefiero mil veces un bloqueo de transportistas contigo que una carretera libre sin ti</div>
+    <div class="frase">Descubrí que mi teoría sobre el amor era incompleta hasta que llegaste a ser la pieza que faltaba</div>
+    <div class="frase">Descubrí que me gusta cómo desafías mi lógica con solo una mirada</div>
+    <div class="frase">Descubrí que puedo ser un psicólogo para el mundo, pero contigo solo quiero ser Jhoel</div>
+    <div class="frase">Descubrí que el futuro ya no es un concepto abstracto, ahora tiene tu nombre y tu apellido</div>
+    <div class="frase">Descubrí que mi "memoria caché" está llena de detalles tuyos que no quiero borrar nunca</div>
+    <div class="frase">Descubrí que amarte es la decisión más lógica y, a la vez, la más locamente hermosa que he tomado</div>
+    <div class="frase">Descubrí que mi equilibrio de Sternberg solo está completo cuando tengo tu intimidad y mi compromiso</div>
+    <div class="frase">Descubrí que me gusta que seas mi "excepción de seguridad" en un mundo lleno de reglas</div>
+    <div class="frase">Descubrí que no hay espera que me importe si al final del camino estás tú</div>
+    <div class="frase">Descubrí que prefiero mil veces caminar por la Ceja esquivando gente, si es tu mano la que me guía</div>
+    <div class="frase">Descubrí que mi análisis conductual falla contigo porque eres impredeciblemente hermosa</div>
+    <div class="frase">Descubrí que me gusta cuando me corriges, porque significa que me prestas atención de verdad</div>
+    <div class="frase">Descubrí que eres mi mejor "anclaje emocional" cuando mi mente empieza a sobrepensar</div>
+    <div class="frase">Descubrí que prefiero un "jsjsjs" tuyo que mil teorías psicológicas sobre la felicidad</div>
+    <div class="frase">Descubrí que mi mapa de vida tenía un espacio vacío que solo tu risa pudo llenar</div>
+    <div class="frase">Descubrí que me gusta que no intentes ser perfecta, porque tu autenticidad es lo que me engancha</div>
+    <div class="frase">Descubrí que esos golpecitos que me das de la nada son mi forma favorita de sentirte cerca</div>
+    <div class="frase">Descubrí que mi muro personal se derrumba solo cuando escucho tu voz</div>
+    <div class="frase">Descubrí que el amor no es un algoritmo, pero contigo los resultados siempre son increíbles</div>
+    <div class="frase">Descubrí que me gusta verte concentrada, incluso si no me estás mirando a mí</div>
+    <div class="frase">Descubrí que tu tranquilidad es el respiro que mi vida necesitaba para dejar de ir tan rápido</div>
+    <div class="frase">Descubrí que no necesito ser un experto para saber que estamos conectados de verdad</div>
+    <div class="frase">Descubrí que me gusta cómo defiendes tus ideas, incluso cuando no estamos de acuerdo</div>
+    <div class="frase">Descubrí que sentirte en mi hombro me reinicia el día de la forma más bonita</div>
+    <div class="frase">Descubrí que mi sentido de orientación da igual, porque mi destino siempre termina siendo a tu lado</div>
+    <div class="frase">Descubrí que amar significa aceptar que mi lógica no tiene poder sobre lo que me haces sentir</div>
+    <div class="frase">Descubrí que mi historia favorita no está en un libro de texto, se está escribiendo contigo cada día</div>
+    <div class="frase">Descubrí que contigo lo subjetivo por fin tiene sentido</div>
+    <div class="frase">Descubrí que hay veces que quiero casarme contigo, y otras que solo quiero observarte en silencio</div>
+    <div class="frase">Descubrí que te pueden juzgar por tus ideas, pero a mí me encanta la profundidad de cada una de ellas</div>
+    <div class="frase">Descubrí que eres sumamente inteligente para detectar patrones donde otros no ven nada</div>
+    <div class="frase">Descubrí que me fascina esa curiosidad tuya por aprender cosas nuevas constantemente</div>
+    <div class="frase">Descubrí que soltar el control a tu lado no se siente peligroso, sino profundamente apacible</div>
+    <div class="frase">Descubrí que besarte mientras te abrazo me provoca una intensidad que a veces me asusta por lo real que es</div>
+    <div class="frase">Descubrí que quiero conocer el mundo contigo, pero no hablo de viajar a otros países, sino de habitar tu interior</div>
+    <div class="frase">Descubrí que la ley de conservación de la energía no aplica a tu lado, porque todo se amplifica y se crea de la nada</div>
+    <div class="frase">Descubrí que no me necesitas para estar completa, pero me eliges cerca, y eso lo hace más valioso</div>
+
+    
+    <div class="final-section">
+      <div class="grand-final" id="grand-final">
+        <div class="grand-final-text">
+          Y entre todo lo que descubrí…
+          <span class="highlight">lo más importante fue descubrirte a ti.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="hidden-message">
+  <!-- 
+    Nota del programador: 
+    Hola, Francin. 
+    Si llegaste aquí leyendo el código fuente... 
+    significa que tu curiosidad esta por las nubes en estos momentos.
+    Jhoel escribió todo esto en un estado donde te extrañaba mucho
+    Es probable que en este momento igual te extrañe, escribele...
+    Le hara muy feliz.
+    Eres su elección consciente, su trebolcito,
+    y la anomalía estadística más bonita de su vida. 🩷
+  -->
+</div>
+
+<script>
+  
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%; top:${Math.random()*100}%;
+      --dur:${2+Math.random()*4}s;
+      --max-op:${0.3+Math.random()*0.5};
+      animation-delay:${Math.random()*5}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  
+  const heartsEl = document.getElementById('hearts');
+  const heartSymbols = ['♡', '♥', '✦', '·'];
+  let heartsStarted = false;
+
+  function spawnHeart() {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = heartSymbols[Math.floor(Math.random()*heartSymbols.length)];
+    h.style.cssText = `
+      left:${5+Math.random()*90}%;
+      font-size:${8+Math.random()*10}px;
+      color: hsl(${320+Math.random()*40}, 80%, ${70+Math.random()*15}%);
+      animation-duration:${8+Math.random()*8}s;
+      animation-delay:${Math.random()*2}s;
+      animation-play-state: running;
+    `;
+    heartsEl.appendChild(h);
+    setTimeout(() => h.remove(), 18000);
+  }
+
+  
+  const progressEl = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    progressEl.style.width = (scrolled / total * 100) + '%';
+  });
+
+  
+  const allFrases = document.querySelectorAll('.frase, .divider');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+  allFrases.forEach(f => observer.observe(f));
+
+  // No creo que haya una persona predestinada a amarte
+  // Pero quiero comprobarlo contigo. 
+  const grandFinal = document.getElementById('grand-final');
+  const finalObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        grandFinal.classList.add('visible');
+        // Te dejo una parte de mi escencia, 
+        // Un mapeado de mi mente aqui. 
+        //Y un poco del amor que te tengo. 
+        if (!heartsStarted) {
+          heartsStarted = true;
+          for (let i = 0; i < 3; i++) {
+            setTimeout(spawnHeart, i * 600);
+          }
+          setInterval(spawnHeart, 1200);
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+  finalObserver.observe(grandFinal);
+
+  // Ayyyy es que me tienes tan enamorado que ando como pendejo por las calles pensando en la ultimas vez que te vi. 
+  // Me pongo a realziar mis actividades mientras paso los recuerdos contigo como si fueran diapositivas mentales. 
+  // Usando mi memoria sensorial que dejaste en mi como palomitas. 
+  // Igual me da miedo de recordarlo tantas veces que el recuerdo termine modificandose tanto que ya no sea el original. 
+  const scrollHint = document.querySelector('.scroll-hint');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) scrollHint.style.opacity = '0';
+  }, { once: true });
+</script>
+</body>
+</html>
