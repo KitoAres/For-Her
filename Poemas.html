@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teorías del Nosotros</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --text: #e8e4d9;
+    --muted: #7a7570;
+    --accent: #c9a96e;
+    --accent2: #8fa8c8;
+    --line: rgba(201,169,110,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 10vw;
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 40%;
+    height: 100%;
+    background: radial-gradient(ellipse at right center, rgba(201,169,110,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.3s;
+  }
+
+  .cover-title {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.1;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.6s;
+    margin-bottom: 32px;
+  }
+
+  .cover-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.9s;
+    margin-bottom: 80px;
+  }
+
+  .cover-author {
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.2s;
+  }
+
+  .toc {
+    padding: 80px 10vw;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .toc-item:hover { opacity: 1; }
+
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    min-width: 24px;
+  }
+
+  .toc-title {
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--muted);
+    opacity: 0.3;
+    margin-bottom: 4px;
+  }
+
+  /* Chapters */
+  .chapter {
+    padding: 100px 10vw;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .chapter.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .chapter-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+
+  .chapter-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+  }
+
+  .chapter-line {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    max-width: 60px;
+  }
+
+  .chapter-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .chapter-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    margin-bottom: 56px;
+    opacity: 0.8;
+  }
+
+  .prose {
+    max-width: 680px;
+  }
+
+  .prose p {
+    margin-bottom: 28px;
+    font-size: 18px;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .prose .final-line {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--accent);
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  .prose .accent-word {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* Verse style for poem-like sections */
+  .verse {
+    padding-left: 32px;
+    border-left: 2px solid var(--line);
+    margin: 36px 0;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 2;
+  }
+
+  /* Colophon */
+  .colophon {
+    padding: 100px 10vw;
+    text-align: center;
+  }
+
+  .colophon p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    line-height: 2.5;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .cover, .chapter, .toc { padding-left: 6vw; padding-right: 6vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<section class="cover">
+  <div class="cover-label">Prosa · Vol. I</div>
+  <h1 class="cover-title">Teorías<br>del Nosotros</h1>
+  <div class="cover-subtitle">// una aproximación empírica al amor no controlado</div>
+  <div class="cover-author">J.</div>
+</section>
+
+<!-- ÍNDICE -->
+<section class="toc">
+  <div class="toc-label">// índice</div>
+  <div class="toc-item"><span class="toc-num">01</span><span class="toc-title">Diagnóstico Diferencial</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">02</span><span class="toc-title">Función Cortical Superior (o: te amé con el prefrontal)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">03</span><span class="toc-title">El Principio de Incertidumbre (Aplicado)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">04</span><span class="toc-title">Ley de Conservación del Afecto</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">05</span><span class="toc-title">Taxonomía del Enamoramiento</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">06</span><span class="toc-title">Teorema de Punto Fijo</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">07</span><span class="toc-title">Protocolo de Navegación (o: mi único mapa eras tú)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">08</span><span class="toc-title">Entropía Negativa</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">09</span><span class="toc-title">Ciencia Propia (o: hipótesis que solo podemos comprobar juntos)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">10</span><span class="toc-title">Resonancia de Schumann</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">11</span><span class="toc-title">La Paradoja del Observador</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">12</span><span class="toc-title">Modelo de Apego Seguro (Borrador)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">13</span><span class="toc-title">Contemplación como Método</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">14</span><span class="toc-title">Efecto Pigmalión (Versión No Controlada)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">15</span><span class="toc-title">Sumación Temporal</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">16</span><span class="toc-title">Coda: Elección Consciente</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">17</span><span class="toc-title">Ley de Fick (o: la distancia también es una forma de querer)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">18</span><span class="toc-title">Pensamiento Intrusivo Clasificado</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">19</span><span class="toc-title">Constructivismo Aplicado (o: si Vygotsky nos viera)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">20</span><span class="toc-title">Teoría del Campo Unificado (Versión Sentimental)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">21</span><span class="toc-title">Protocolo de Vulnerabilidad</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">22</span><span class="toc-title">Hipótesis de la Pantalla de Carga</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">23</span><span class="toc-title">Relatividad del Tiempo Subjetivo</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">24</span><span class="toc-title">Ley de Hebb (o: lo que se activa junto, se conecta)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">25</span><span class="toc-title">El Triángulo de Sternberg (Revisado)</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">26</span><span class="toc-title">Cimientos Antisísmicos</span><span class="toc-dots"></span></div>
+  <div class="toc-item"><span class="toc-num">27</span><span class="toc-title">Registro Final: Anomalía Hermosa</span><span class="toc-dots"></span></div>
+</section>
+
+<!-- 01 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">01</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología clínica</span>
+  </div>
+  <h2>Diagnóstico Diferencial</h2>
+  <div class="chapter-subtitle">// o: por qué no puedo ser objetivo contigo</div>
+  <div class="prose">
+    <p>Dicen que el método científico exige distancia. Observador y objeto separados por un cristal, por un protocolo, por la frialdad necesaria para que los datos sean datos y no deseos disfrazados. Yo lo intenté. De verdad lo intenté. Pero cada vez que quiero analizarte me convierto en parte del experimento.</p>
+    <p>Pienso en ti y se me va la variable independiente. Se me va el control, el grupo comparativo, la hipótesis nula. Me quedo solo con la hipótesis alterna: que esto es real, que no es ruido estadístico, que una muestra de uno puede ser suficiente si la muestra eres tú.</p>
+    <p>Leí sobre el efecto observador en física cuántica. Que el acto de observar cambia lo observado. Creo que me pasa eso contigo, pero al revés: tú me cambias a mí cada vez que te miro. No sé quién era antes de empezar a prestarte atención. Probablemente alguien más ordenado. Con menos variables abiertas. Con el sueño más intacto.</p>
+    <p>Pero el desorden que traes tiene una lógica interna que todavía estoy aprendiendo a leer.</p>
+    <p class="final-line">Eso también es ciencia: encontrar el patrón en el caos. Y yo tengo toda la vida para seguir recolectando datos.</p>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">02</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">neurociencia · corteza prefrontal</span>
+  </div>
+  <h2>Función Cortical Superior</h2>
+  <div class="chapter-subtitle">// o: te amé con el prefrontal</div>
+  <div class="prose">
+    <p>Helen Fisher tiene razón en que el amor corre por las mismas vías que el hambre. Que hay dopamina, que hay circuitos primitivos, que el sistema límbico está involucrado desde el principio. Todo eso es cierto. Y todo eso me importa menos de lo que debería, porque lo que siento por ti no empezó en el instinto.</p>
+    <p>Todos se enamoran con el sistema límbico buscando dopamina. Yo te amé con el prefrontal.</p>
+    <p>No porque sea más racional que el resto. Sino porque elegirte no fue un reflejo. Fue una decisión. Vi los silencios difíciles y decidí quedarme. Vi las distancias que no entendí y decidí no interpretar lo peor. Vi el proceso complejo de ser tú y decidí que quería aprender a leerlo. Eso no es impulso. Eso es deliberación ejecutiva. Eso es exactamente lo que la corteza prefrontal hace cuando funciona bien: inhibir la reacción automática y elegir la respuesta.</p>
+    <p>El sistema límbico me diría que salga corriendo cuando algo duele. El prefrontal me dice que espere, que analice, que considere el costo a largo plazo de irme versus el valor a largo plazo de quedarme.</p>
+    <p>Y el análisis siempre da el mismo resultado.</p>
+    <p class="final-line">Me gustas desde la calma, no desde la necesidad. Y eso, neurológicamente, es lo más parecido al amor adulto que existe.</p>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">03</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">física cuántica</span>
+  </div>
+  <h2>El Principio de Incertidumbre (Aplicado)</h2>
+  <div class="chapter-subtitle">// o: no puedo saber dónde estás y qué sientes al mismo tiempo</div>
+  <div class="prose">
+    <p>Heisenberg dijo que no puedes conocer simultáneamente la posición y el momento de una partícula. Mientras más precisas una, más borrosa se vuelve la otra. No es falla del instrumento. Es la naturaleza de las cosas: hay pares de variables que se excluyen mutuamente en la precisión.</p>
+    <p>Contigo entendí eso de otra forma.</p>
+    <p>Puedo saber dónde estás: en una tarde específica, en una dirección que conozco, a una distancia calculable. Pero entonces no sé qué sientes. O puedo rastrear lo que sientes por los indicadores que me das, por la cadencia de tus mensajes, por el tono que adoptas cuando algo te pesa, y entonces pierdo noción de dónde estás realmente, si cerca o lejos en lo que importa.</p>
+    <p>Nunca los dos al mismo tiempo.</p>
+    <p>Al principio quise corregirlo. Pensé que era problema de datos insuficientes, de que si observaba mejor, si prestaba más atención, podría tener las dos coordenadas juntas. Pero no. El principio aplica. No porque seas imprecisa, sino porque eres suficientemente real como para no caber entera en una sola medición.</p>
+    <p>Así que decidí vivir en la incertidumbre. No resignado. Curioso.</p>
+    <p class="final-line">Prefiero no saber todo de ti a tener una versión tuya que quepa perfectamente en mis ecuaciones.</p>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">04</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">termodinámica</span>
+  </div>
+  <h2>Ley de Conservación del Afecto</h2>
+  <div class="chapter-subtitle">// o: nada de lo que sentí desapareció, solo cambió de forma</div>
+  <div class="prose">
+    <p>La energía no se crea ni se destruye. Se transforma. Eso lo aprendí en física básica y lo olvidé hasta que lo viví contigo.</p>
+    <p>Todo lo que acumulé esperándote no desapareció mientras no estabas. Se convirtió en otra cosa. En páginas escritas a las dos de la mañana. En canciones subrayadas. En la forma en que empecé a entender la teoría del apego no como concepto académico sino como autobiografía. En el hábito de analizar cada interacción nuestra con una atención que debería haberme dado vergüenza pero que me daba, sobre todo, claridad.</p>
+    <p>El afecto que no llega a su destino no se pierde. Busca otro estado. Se vuelve escritura, o silencio, o una comprensión nueva de uno mismo que de otro modo no hubiera llegado.</p>
+    <p>Ahora que estás, no tengo que transformarlo. Puede ser simplemente lo que es: afecto en su estado más directo, sin mediación, sin conversión. Algo que va de mí a ti sin necesitar pasar por ningún otro sistema.</p>
+    <p>Eso es, creo, lo más parecido a la eficiencia que he logrado en algo que no se puede optimizar.</p>
+    <p class="final-line">La física tenía razón: nada se pierde. Solo yo tardé en entender que eso también aplica para lo bueno.</p>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">05</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología clínica · DSM-V</span>
+  </div>
+  <h2>Taxonomía del Enamoramiento</h2>
+  <div class="chapter-subtitle">// o: por qué te llevo a todas mis materias</div>
+  <div class="prose">
+    <p>Cada vez que pienso en ti me pierdo en tu foco, en tu luz, en tus ojos. Pierdo una parte de mí porque te proyecté en mi futuro soñado: uno sin incertidumbre, uno donde nos elegimos constantemente, incluso cuando la llama quema menos, cuando los neurotransmisores bajan y viene esa etapa de adaptación que mata relaciones enteras. Prefiero el rescoldo contigo que cualquier llama con alguien más.</p>
+    <p>Por ti dejé todas las otras versiones de mí. O quizás fueron ellas las que hicieron el pacto: eligiéndote en una decisión unánime antes de que yo lo supiera.</p>
+    <p>He estado estudiando el DSM-V, llevándome flashcards a todos lados, y en cada lectura te encuentro. No porque piense que tienes algún trastorno, sino porque yo me siento de formas distintas cuando pienso en ti o cuando te tengo cerca. Siento algo parecido a la catatonía cuando te veo: me congelo en los detalles de tu cara, aunque mi atención siempre termina en tus labios y en tus ojos. Siento algo parecido a la obsesión, que dicen que es normal en el enamoramiento, esa iteración constante que me lleva a ti. Insomnio cuando no te tengo. TDAH cuando no estoy contigo. Ciclotimia en los días sin verte, con algo parecido a la psicosis en las noches que eres solo un pensamiento.</p>
+    <p>Y sin embargo, a tu lado todo eso desaparece. Mi mente se enfoca en el presente, solo en el presente contigo, porque lo demás se borra, incluido el tiempo: cuando vuelvo en mí, ya es de noche.</p>
+    <p>Quisiera comprarle al tiempo unos segundos más. Sabiendo que serán efímeros. Pero quizás son efímeros precisamente porque mis planes contigo son de aquí a años.</p>
+    <p>Me pierdo pensando en ti, sí. Pero también me ayudas a estudiar: me pongo a pensar en cómo tal teoría nos mejoraría, analizo variables que según la taxonomía de Bloom serían irreales, pero las corrijo con Mager, vuelvo tangible lo intangible, agrego métricas, y llego siempre a la misma conclusión:</p>
+    <p class="final-line">Eres la persona que más he amado.</p>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">06</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">matemáticas · topología</span>
+  </div>
+  <h2>Teorema de Punto Fijo</h2>
+  <div class="chapter-subtitle">// o: no importa desde dónde parta, llego siempre al mismo lugar</div>
+  <div class="prose">
+    <p>El teorema de Brouwer dice que en cualquier función continua que mapea un espacio compacto en sí mismo, existe al menos un punto que no se mueve. Un punto que la función devuelve exactamente a donde estaba. Un punto fijo.</p>
+    <p>Yo tengo muchos pensamientos en un día. Empiezan en lugares distintos: en una lectura de metodología, en el ruido del transporte, en una conversación que no terminó bien, en una idea que quiero desarrollar. Se mueven, se transforman, se conectan con otras cosas. Pero hay un punto al que todos regresan.</p>
+    <p>Mi punto eres tú.</p>
+    <p>No como obsesión. Como ancla. Como el lugar del mapa donde la brújula siempre apunta cuando el pensamiento ha viajado suficiente y necesita orientarse. Puedo empezar pensando en estructuras de datos y terminar pensando en cómo te explicaría esto. Puedo empezar leyendo sobre intervención en crisis y terminar pensando en las formas en que tú manejas las tuyas. Puedo empezar en cualquier parte del mapa mental y el camino, si lo sigo lo suficiente, llega hasta ti.</p>
+    <p>Intenté cambiar la función. Pensé que era ineficiente, que debía poder pensar en otras cosas sin que la ruta terminara siempre en el mismo lugar. Pero no era ineficiencia. Era topología.</p>
+    <p class="final-line">Eres el punto fijo de mi sistema. Y ahora ya no quiero un sistema diferente.</p>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">07</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">orientación espacial · sistemas de referencia</span>
+  </div>
+  <h2>Protocolo de Navegación</h2>
+  <div class="chapter-subtitle">// o: mi único mapa eras tú</div>
+  <div class="prose">
+    <p>Tengo mala orientación desde siempre. No es exageración: es un fallo de fábrica documentado, consistente, que he aprendido a compensar con rutas memorizadas y con la costumbre de llegar antes para no tener que pedir ayuda. En términos de sistemas, diría que mi módulo GPS tiene errores de calibración que ninguna actualización ha podido corregir del todo.</p>
+    <p>Contigo no necesitaba el módulo.</p>
+    <p>Tomabas mi mano y me guiabas por las calles sin que yo lo pidiera, con la naturalidad de alguien que sabe exactamente adónde va y no hace drama de llevarte. Sin señalarte. Sin sobreexplicar. Solo tu mano como guía. Y yo iba. Y no me encontraba perdido.</p>
+    <p>Tardé en entender que eso no era solo orientación geográfica. Era algo más raro: la sensación de saber dónde estás aunque no reconozcas la calle, porque hay alguien al lado cuya presencia funciona como coordenada. No necesitas el mapa cuando tienes el punto de referencia correcto.</p>
+    <p>Tú eras ese punto. Eras el único mapa que no necesitaba estudiar.</p>
+    <p>El resto de sistemas de navegación que conozco requieren calibración constante, actualización, señal. Tú eras la única referencia que nunca fallaba, incluso cuando todo lo demás estaba fuera de rango.</p>
+    <p class="final-line">A tu lado, nunca estaba perdido. Y eso, para alguien con mi historial de fallo de orientación, es lo más parecido a un milagro técnico que he experimentado.</p>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">08</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">termodinámica · sistemas</span>
+  </div>
+  <h2>Entropía Negativa</h2>
+  <div class="chapter-subtitle">// o: eres el único desorden que me organiza</div>
+  <div class="prose">
+    <p>La entropía es la tendencia natural de los sistemas hacia el desorden. Todo se dispersa, se degrada, pierde estructura con el tiempo si no hay energía que lo mantenga. Es una ley, no una metáfora. Los sistemas complejos se desmoronan solos si no hay algo que los sostenga.</p>
+    <p>Pero Schrödinger habló de entropía negativa: la capacidad de ciertos sistemas de importar orden desde afuera para compensar el desorden interno. Los seres vivos hacen eso. Toman estructura del ambiente para mantenerse organizados por dentro.</p>
+    <p>Tú eres mi entropía negativa.</p>
+    <p>No porque me resuelvas o porque simplifiques las cosas. Eres, en muchos sentidos, uno de los elementos más complejos que ha entrado en mi sistema. Pero esa complejidad tiene una estructura propia que, cuando interactúa con la mía, produce algo inesperado: orden. Claridad sobre lo que quiero. Menos ruido sobre lo que no importa. Una jerarquía más honesta de prioridades.</p>
+    <p>Antes de ti, el sistema funcionaba, pero con mucha entropía interna: muchas variables sin resolver, muchas direcciones simultáneas, mucha energía gastada en procesar lo que no valía el gasto. Contigo, algo se alinea. No perfectamente. Pero suficientemente.</p>
+    <p class="final-line">El universo tiende al caos. Tú eres la excepción local que lo contradice.</p>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">09</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">epistemología · método científico propio</span>
+  </div>
+  <h2>Ciencia Propia</h2>
+  <div class="chapter-subtitle">// o: hipótesis que solo podemos comprobar juntos</div>
+  <div class="prose">
+    <p>La ciencia estándar exige replicabilidad: que cualquier laboratorio del mundo pueda reproducir el experimento y obtener el mismo resultado. Es la garantía de que el hallazgo no depende del observador, de que no es un accidente de contexto, de que es verdad general y no verdad local.</p>
+    <p>Lo nuestro no pasa ese filtro. Y no me importa.</p>
+    <p>Porque hay fenómenos que por su naturaleza solo ocurren una vez, en condiciones que no pueden duplicarse: esta configuración específica de dos personas, en este momento específico del tiempo, con estas historias exactas que ningún otro par de personas comparte. No hay grupo control. No hay muestra representativa. Solo nosotros dos como laboratorio único, generando datos que ningún otro experimento podría producir.</p>
+    <p>Entonces propongo esto: hagamos nuestra propia ciencia. Comprobemos empíricamente, en el único laboratorio disponible, que el amor puede ser un acto consciente y no solo un proceso biológico que nos ocurre. Que se puede elegir con información completa, con el diagnóstico en la mano, con los ojos abiertos a las partes difíciles y aun así decidir: sí, adelante, esto vale.</p>
+    <p>La hipótesis: que dos personas pueden construir algo que resista el tiempo no por química sino por decisión sostenida. Variable independiente: la elección diaria. Variable dependiente: lo que somos dentro de diez años.</p>
+    <p>El experimento ya empezó.</p>
+    <p class="final-line">No necesito que sea replicable. Solo necesito que sea real. Y contigo, lo es.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">10</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">geofísica · resonancia</span>
+  </div>
+  <h2>Resonancia de Schumann</h2>
+  <div class="chapter-subtitle">// o: hay frecuencias que el cuerpo reconoce antes que la mente</div>
+  <div class="prose">
+    <p>La resonancia de Schumann son las frecuencias electromagnéticas que resuenan en la cavidad entre la superficie terrestre y la ionosfera. Aproximadamente 7.83 Hz. Algunos estudios sugieren que el cerebro humano en reposo oscila en rangos similares. Como si la biología y la física del planeta se hubieran acordado en algo sin consultarnos.</p>
+    <p>Hay personas con las que uno resuena antes de entender por qué.</p>
+    <p>Contigo fue así. Antes de que hubiera suficiente historia para justificarlo racionalmente, algo ya estaba alineado. No en el sentido romántico vago de las almas gemelas, sino en un sentido más concreto y más raro: había una frecuencia en la forma en que procesabas las cosas, en el ritmo de tus silencios, en la lógica que usabas para explicarte, que mi sistema reconoció antes de que yo pudiera nombrarlo.</p>
+    <p>No sé si eso tiene base empírica. Probablemente es un sesgo de confirmación elegante. Pero también sé que hay cosas que la metodología no alcanza a explicar todavía, y que eso no las hace menos reales.</p>
+    <p>El cuerpo sabe cosas que la mente tarda en procesar. Y el mío supo contigo desde antes.</p>
+    <p class="final-line">7.83 Hz. La frecuencia del planeta. La frecuencia tuya. Quizás sean la misma cosa.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">11</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">física cuántica · epistemología</span>
+  </div>
+  <h2>La Paradoja del Observador</h2>
+  <div class="chapter-subtitle">// o: el problema de querer entenderte y querer quererte al mismo tiempo</div>
+  <div class="prose">
+    <p>Hay una tensión que cargo desde que empecé a estudiar psicología y a quererte al mismo tiempo: la tentación de analizar lo que siento mientras lo siento. Como si pudiera ser observador y muestra simultáneamente. Como si el mapa y el territorio pudieran coincidir sin que uno destruya al otro.</p>
+    <p>A veces funciona. Entiendo lo que me está pasando con suficiente claridad como para no ser arrastrado por ello. Identifico el mecanismo, nombro el patrón, elijo la respuesta en lugar de solo reaccionar. Eso se siente como competencia. Como si el conocimiento sirviera para algo más que los exámenes.</p>
+    <p>Pero otras veces la observación mata lo observado. Me saco del momento para registrarlo y cuando vuelvo el momento ya no está. Me pongo a pensar en qué categoría entra lo que siento por ti y mientras tanto lo que siento por ti sigue ahí, esperando, sin que yo lo habite del todo.</p>
+    <p>Contigo aprendí a soltar el portapapeles a veces. A dejar que la experiencia sea solo experiencia, sin necesidad de etiqueta ni de análisis ni de integración inmediata al marco teórico. A estar sin tomar notas.</p>
+    <p>Es el ejercicio más difícil que me ha dado la psicología. Y no viene de ningún libro.</p>
+    <p class="final-line">El mejor dato que tengo de ti no cabe en ninguna variable. Y eso ya no me molesta.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">12</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">teoría del apego · Bowlby</span>
+  </div>
+  <h2>Modelo de Apego Seguro (Borrador)</h2>
+  <div class="chapter-subtitle">// o: esto es lo que quiero construir contigo, si me dejas</div>
+  <div class="prose">
+    <p>Bowlby describió el apego seguro como aquel donde la figura de apego funciona como base segura: un punto desde donde explorar el mundo con confianza, sabiendo que si algo sale mal hay un lugar al que volver. No dependencia. No fusión. Base.</p>
+    <p>Yo llegué con el borrador incompleto. Con algunos capítulos bien escritos y otros que son solo título y notas al margen. Con patrones que reconozco pero que no siempre puedo interrumpir a tiempo. Con la tendencia a proyectar demasiado en el futuro cuando el presente me genera incertidumbre. Con el hábito de construir castillos antes de tener los planos.</p>
+    <p>Este es el borrador que te traigo.</p>
+    <p>No el producto terminado. No la versión corregida y sin errores de alguien que ya resolvió todo lo que tenía que resolver. Sino el proceso en curso, con las marcas del trabajo visible, con las revisiones a mano en los márgenes, con las páginas que todavía no sé cómo terminar.</p>
+    <p>Lo que sí sé es lo que quiero construir: algo donde los dos podamos ser base del otro sin que eso nos quite piso propio. Donde elegirse no sea sacrificio sino expansión. Donde el otro no sea el todo, sino la razón por la que el todo tiene mejor forma.</p>
+    <p>Eso es lo que quiero. No lo tengo perfecto todavía. Pero lo tengo claro.</p>
+    <p class="final-line">Tú eres el primer borrador que no quiero tirar. El primero que quiero seguir escribiendo.</p>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">13</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">fenomenología · percepción</span>
+  </div>
+  <h2>Contemplación como Método</h2>
+  <div class="chapter-subtitle">// o: a veces el silencio es el análisis más preciso</div>
+  <div class="prose">
+    <p>Hay un tipo de atención que no produce output. No genera informe, no concluye, no categoriza. Solo registra. Es la atención que se activa cuando algo es suficientemente complejo o suficientemente hermoso como para que el sistema de clasificación decida, por una vez, no interferir.</p>
+    <p>Contigo tengo eso.</p>
+    <p>A veces me quedo mirándote en silencio y no pienso en nada que pueda nombrarse. No analizo. No proyecto. No construyo hipótesis sobre lo que viene. Solo estoy ahí, registrando: la forma en que te mueves cuando no sabes que te miro, la cadencia de tu respiración cuando estás tranquila, el gesto específico que haces con las manos cuando algo te interesa de verdad.</p>
+    <p>No lo guardo para procesarlo después. No lo archivo. Lo dejo pasar por el sistema sin retención, que es exactamente lo contrario de cómo funciono con todo lo demás.</p>
+    <p>Eso es raro en mí. Soy alguien que toma notas mentales de todo, que construye modelos de las cosas para entenderlas, que no puede observar sin también clasificar. Pero contigo aprendo que hay una forma de conocer que no pasa por el lenguaje. Que la mirada sostenida en silencio dice algo que ninguna taxonomía podría capturar.</p>
+    <p class="final-line">Me quedé mirándote y dejé que todo se entendiera solo. Fue el momento más honesto del día.</p>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">14</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología educativa · expectativas</span>
+  </div>
+  <h2>Efecto Pigmalión (Versión No Controlada)</h2>
+  <div class="chapter-subtitle">// o: te vi tan bien que ahora no puedo verte de otra forma</div>
+  <div class="prose">
+    <p>El efecto Pigmalión, en su versión Rosenthal, dice que las expectativas que tenemos sobre alguien influyen en lo que esa persona llega a ser. El maestro que espera más de un alumno, sin saberlo, le da más, le presta más atención, le devuelve más retroalimentación. Y el alumno, respondiendo a ese ambiente diferente, rinde diferente. Las expectativas se autocumplen.</p>
+    <p>Yo te vi de una forma desde el principio. No ingenua: vi también las partes complicadas, los silencios que costaba descifrar, las distancias que no siempre entendí. Pero debajo de todo eso vi algo que decidí no desestimar. Una inteligencia que no siempre se anuncia. Una forma de querer que es lenta en mostrarse pero que cuando aparece tiene mucho peso.</p>
+    <p>Y creo que eso cambió algo.</p>
+    <p>No porque yo te haya construido: eso sería Pigmalión en su versión arrogante, la que el mito original castiga. Sino porque cuando alguien te mira de cierta forma sostenida, sin rendirse, algo en el sistema responde. No siempre. No con todos. Pero a veces sí.</p>
+    <p>No sé si lo que ves en mí también funciona así. No sé si tu mirada me ha cambiado sin que yo lo note. Pero sospecho que sí.</p>
+    <p class="final-line">Quizás nos hemos estado construyendo mutuamente desde antes de saberlo.</p>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">15</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">neurofisiología · tiempo acumulado</span>
+  </div>
+  <h2>Sumación Temporal</h2>
+  <div class="chapter-subtitle">// o: cómo un estímulo pequeño, repetido, construye algo irreversible</div>
+  <div class="prose">
+    <p>En neurofisiología, la sumación temporal ocurre cuando un estímulo débil, aplicado repetidamente, termina disparando una respuesta que ningún estímulo aislado habría podido provocar. No es intensidad. Es frecuencia. Es acumulación. Las cosas pequeñas, cuando no paran, terminan cambiando todo.</p>
+    <p>Así fue contigo.</p>
+    <p>No hubo un instante fundacional que pueda señalar en el mapa. Fue la forma en que dijiste mi nombre una tarde sin importancia. Fue el mensaje que mandaste antes de dormir que no decía nada urgente pero llegó de todas formas. Fue la vez que te reíste de algo que nadie más hubiera encontrado gracioso y yo pensé: <span class="accent-word">ahí está, ahí está la frecuencia exacta.</span></p>
+    <p>Cada uno de esos momentos era insuficiente solo. Pero juntos sumaron. Y después de cierto umbral, la respuesta se vuelve inevitable. El sistema ya no puede no reaccionar. No porque haya perdido el control, sino porque hay demasiada evidencia acumulada de que esto vale la pena.</p>
+    <p>Eso es lo que eres: no un rayo. Una corriente continua. No el momento que lo cambia todo, sino los mil momentos pequeños que acumulan hasta que lo cambian sin que nadie lo vea venir.</p>
+    <p>Y yo ya pasé el umbral hace mucho. Cada vez que apareces es otro estímulo que suma, que refuerza, que convierte lo que podría haber sido algo pasajero en algo con textura de permanente.</p>
+    <p class="final-line">No te elegí en un segundo. Te elegí en cientos de segundos pequeños que nadie más vio, y que yo guardo todos.</p>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">16</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">coda · elección</span>
+  </div>
+  <h2>Coda: Elección Consciente</h2>
+  <div class="chapter-subtitle">// o: el amor de tu vida es quien decides que lo sea</div>
+  <div class="prose">
+    <p>Para mí no existe el amor de tu vida en el sentido de que alguien esté predestinado mágicamente. Eso suena a que no tienes control. Suena a que el amor te pasa, como la lluvia, como el tráfico, como las cosas que no elegiste y que simplemente son.</p>
+    <p>Yo creo que es más una elección consciente.</p>
+    <p>El amor de tu vida es la persona que tú decides que lo sea. Y que dejas que lo sea. Día a día, con información completa, con las partes difíciles a la vista y no solo las buenas, con los momentos en que sería más fácil no elegir y aun así elegís.</p>
+    <p>Eso es lo que quiero construir contigo. No el amor que ocurre solo, sino el que se sostiene con las manos. No el que empieza en el sistema límbico y dura lo que dura la dopamina, sino el que tiene cimientos antisísmicos, diseñado para atravesar las variables del tiempo: la adaptación, el cambio, las etapas que matan relaciones enteras si no hay decisión detrás.</p>
+    <p>Lo intenso quema rápido y deja cenizas. Lo que nosotros estamos construyendo tiene otra estructura. Una que no depende del fuego para mantenerse.</p>
+    <p>Y hoy, con todos los datos disponibles, con el análisis hecho y la metodología revisada, llego a la misma conclusión de siempre:</p>
+    <p class="final-line">Hoy elijo que tú seas el amor de mi vida, Francin.</p>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">17</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">biofísica · difusión</span>
+  </div>
+  <h2>Ley de Fick</h2>
+  <div class="chapter-subtitle">// o: la distancia también es una forma de querer</div>
+  <div class="prose">
+    <p>La ley de Fick describe cómo las partículas se mueven desde donde hay más concentración hacia donde hay menos. No es decisión. Es gradiente. La diferencia de concentración genera el flujo, y el flujo va siempre en la misma dirección: hacia el déficit, hacia donde falta, hacia donde hay menos de lo que había.</p>
+    <p>Cuando no estás, se instala un gradiente.</p>
+    <p>La concentración de ti en mi sistema baja de golpe: sin tu voz, sin tu presencia, sin el ritmo específico de cómo ocupas el espacio. Y el sistema, que detecta esa diferencia, empieza a moverse hacia donde estás. No porque decida hacerlo. Porque el gradiente lo pide. Porque la física interna lo exige.</p>
+    <p>Eso es lo que siento cuando te extraño: no nostalgia vaga, sino algo más parecido a un proceso físico. Una tendencia direccional hacia donde está la mayor concentración de lo que quiero. Un flujo que no tiene interruptor porque no es emocional en el sentido sentimental del término, sino estructural. El sistema detecta el déficit y se orienta.</p>
+    <p>A veces siento que te necesito demasiado. Que quisiera verte todos los días. Y en ese querer verte todos los días hay algo de Fick: no es capricho, es gradiente. No es dependencia, es física. La distancia crea la diferencia de concentración, y esa diferencia genera el movimiento hacia ti.</p>
+    <p>Empiezo a ver la belleza en extrañarte. En el hecho de que extrañar a alguien tan específicamente, con esa dirección tan clara, es en sí mismo una forma de saber que lo que siento es real y no solo comodidad.</p>
+    <p class="final-line">El extrañarte no es ausencia. Es la prueba de que estás, aunque no estés.</p>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">18</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología cognitiva · pensamiento intrusivo</span>
+  </div>
+  <h2>Pensamiento Intrusivo Clasificado</h2>
+  <div class="chapter-subtitle">// o: dejame encriptarte como el pensamiento más suicida que conozco</div>
+  <div class="prose">
+    <p>En psicología cognitiva, un pensamiento intrusivo es aquel que aparece sin invitación, que interrumpe el flujo de lo que estabas haciendo, que no pediste y no puedes simplemente borrar con decidir no tenerlo. La mayoría de los modelos los asocian con ansiedad, con OCD, con procesos que el sistema querría suprimir pero que vuelven con más fuerza cada vez que se intenta.</p>
+    <p>Tú eres mi pensamiento intrusivo favorito.</p>
+    <p>Apareces en medio de una lectura de metodología y no pido permiso ni te lo pido a ti. Apareces cuando estoy en el transporte mirando por la ventana sin pensar en nada particular y de repente estás ahí, completa, en algún detalle específico: la forma en que dijiste algo la última vez que te vi, el tono exacto que usas cuando algo te da gracia de verdad, la imagen de tu cara cuando bajas la guardia y te permites estar sin el filtro encendido.</p>
+    <p>No lo suprimo. Aprendí que suprimir pensamientos intrusivos los amplifica, que la paradoja del oso blanco aplica: mientras más intentas no pensar en algo, más espacio ocupa. Así que lo dejo estar. Te dejo aparecer. Y el pensamiento circula, se integra, y en lugar de interrumpir termina nutriendo lo que estaba haciendo.</p>
+    <p>Lo llamo suicida no porque duela, sino porque es el tipo de pensamiento que no tiene salida controlada. No hay forma de tenerlo a medias. Una vez que apareces en el sistema, el sistema se reorganiza alrededor de ti, aunque sea por unos segundos, aunque el contexto sea un parcial de base de datos.</p>
+    <p>No es un fallo del sistema. Es el sistema funcionando exactamente como debe cuando algo importa lo suficiente.</p>
+    <p class="final-line">Que sigas apareciendo sin aviso, en cualquier contexto, a cualquier hora, es la métrica más honesta que tengo de lo que significas.</p>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">19</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología educativa · Vygotsky</span>
+  </div>
+  <h2>Constructivismo Aplicado</h2>
+  <div class="chapter-subtitle">// o: si Vygotsky nos viera</div>
+  <div class="prose">
+    <p>Vygotsky dijo que el aprendizaje ocurre en la zona de desarrollo próximo: ese espacio entre lo que puedes hacer solo y lo que puedes hacer con ayuda de alguien más capaz. No la zona de lo imposible, no la zona de lo que ya dominas, sino exactamente el borde: donde algo es difícil pero alcanzable si hay un andamiaje adecuado.</p>
+    <p>Contigo descubrí que eso aplica a más cosas que el aprendizaje académico.</p>
+    <p>Hay versiones de mí que solo existen cerca de ti. No porque tú las crees desde cero, sino porque algo en el contexto que generas las hace posibles. La versión que suelta el control un poco. La versión que puede quedarse en el presente sin empezar a planificar los próximos cinco años. La versión que dice lo que piensa sin haberlo revisado tres veces antes. Esas versiones están dentro del sistema, pero necesitan un andamiaje específico para activarse.</p>
+    <p>Tú eres ese andamiaje.</p>
+    <p>Y lo que me parece fascinante, desde el constructivismo, es que el andamiaje ideal no hace el trabajo por ti: lo hace contigo, desde el lado, manteniendo el proceso justo en el límite de lo que puedes hacer. Ni tan fácil que no crezca, ni tan difícil que colapses. Ese equilibrio, en educación, es arte. En una relación, es rarísimo.</p>
+    <p>Yo también quiero ser eso para ti. No el que te resuelve, sino el que sostiene el espacio donde tú te resuelves sola, un poco más de lo que lo harías sin mí. Ese intercambio, ese andamiaje mutuo, es lo que Vygotsky llamaría aprendizaje colaborativo.</p>
+    <p class="final-line">Nos estamos enseñando cosas que ningún libro tiene. Y el aula somos nosotros.</p>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">20</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">física teórica · unificación</span>
+  </div>
+  <h2>Teoría del Campo Unificado (Versión Sentimental)</h2>
+  <div class="chapter-subtitle">// o: Einstein no te conoció</div>
+  <div class="prose">
+    <p>Einstein pasó los últimos treinta años de su vida buscando la teoría del campo unificado: una ecuación que pudiera describir todas las fuerzas fundamentales del universo bajo un solo marco. La gravedad, el electromagnetismo, lo fuerte, lo débil. Todo en una sola estructura matemática elegante que mostrara que la diversidad aparente de las fuerzas es en realidad una sola cosa vista desde ángulos distintos.</p>
+    <p>No lo logró. Murió buscando.</p>
+    <p>Yo creo que entiendo por qué le importaba tanto. Hay algo profundamente satisfactorio en la idea de que detrás de todo lo que parece separado hay una unidad subyacente. Que el caos superficial obedece a una lógica más profunda y más simple de lo que parece desde afuera.</p>
+    <p>Contigo tengo algo parecido a esa sensación. Todo lo que soy, que a veces parece fragmentado y en tensión consigo mismo, el que quiere controlar todo y el que quiere soltar, el que analiza hasta el agotamiento y el que se pierde mirándote sin pensar en nada, el que proyecta años al futuro y el que solo quiere este momento, todo eso encuentra una coherencia cuando estás.</p>
+    <p>No porque me simplifiques. Sino porque eres el campo unificado del que necesitaba para que todo lo demás tuviera sentido dentro del mismo marco.</p>
+    <p>Einstein no te conoció. Si lo hubiera hecho, creo que habría encontrado la constante que le faltaba. Porque tú eres exactamente el tipo de estructura que hace que el universo complejo parezca, por un momento, completamente ordenado.</p>
+    <p class="final-line">La constante universal no es la velocidad de la luz. Es tu mirada cuando me miras como si ya supieras todo lo que voy a decir.</p>
+  </div>
+</section>
+
+<!-- 21 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">21</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología del desarrollo · vulnerabilidad</span>
+  </div>
+  <h2>Protocolo de Vulnerabilidad</h2>
+  <div class="chapter-subtitle">// o: uno de los actos más puros de amor es mostrarte con miedo</div>
+  <div class="prose">
+    <p>Brené Brown pasó años estudiando la vergüenza y llegó a una conclusión que le costó aceptar porque contradecía sus propios supuestos: que la vulnerabilidad no es debilidad. Que es, de hecho, el origen de la conexión genuina. Que mostrarte antes de saber cómo van a recibirte es el acto más valiente que existe en el contexto de una relación.</p>
+    <p>Yo llegué a esa conclusión por otro lado: por el miedo.</p>
+    <p>Mostrarte con miedo es exactamente eso: exponer el sistema en un estado no terminado, no optimizado, no con todos los procesos estabilizados. Es abrir el código fuente antes de la versión de producción y decir: esto es lo que hay, con los errores visibles, con los comentarios sin terminar, con las funciones que todavía no sé cómo implementar bien.</p>
+    <p>Lo hago porque te amo. No de otra forma.</p>
+    <p>La vulnerabilidad que no tiene amor detrás es exposición innecesaria, riesgo sin sentido. La vulnerabilidad con amor detrás es apuesta. Es decidir que lo que puedes ganar vale el riesgo de lo que puedes perder. Y en esa ecuación, tú siempre salís del lado del valor esperado positivo.</p>
+    <p>Vi cómo te cuesta también a ti. Vi cómo eliges la vulnerabilidad aunque te tiemble la mano al hacerlo. Eso no lo tomo como dato menor. Tomar la decisión de abrirse cuando el historial dice que abrirse duele es uno de los actos de valentía más silenciosos y más reales que conozco.</p>
+    <p class="final-line">Mi puerto está abierto. No porque no tenga miedo. Sino porque el miedo pesa menos que tú.</p>
+  </div>
+</section>
+
+<!-- 22 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">22</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">diseño de videojuegos · gamificación</span>
+  </div>
+  <h2>Hipótesis de la Pantalla de Carga</h2>
+  <div class="chapter-subtitle">// o: lo que se ve primero no es lo que importa</div>
+  <div class="prose">
+    <p>En diseño de videojuegos, la pantalla de carga es lo primero que ves. Aparece mientras el sistema prepara todo lo que viene: los escenarios, los personajes, la lógica del mundo. Es necesaria, puede ser hermosa, pero no es el juego. Es lo que el sistema muestra mientras lo importante se carga en memoria.</p>
+    <p>Tu físico, para mí, es la pantalla de carga.</p>
+    <p>Y que conste: es una pantalla de carga que me vuelve loco. No lo digo como cortesía ni como línea de apertura. Pero es la pantalla. Lo que captura la atención al principio, lo que hace que el sistema diga: espera, esto tiene algo, quiero ver qué carga detrás.</p>
+    <p>Lo que carga detrás es el juego. Y el juego eres tú: la forma en que construyes argumentos cuando algo te importa, la velocidad con que procesas cosas que la mayoría necesita más tiempo para ver, el tipo de humor que solo aparece cuando ya te sentís cómoda, los sueños que guardas y que empiezan a salir cuando los firewalls bajan un poco, la conexión que se genera cuando dejamos que dos formas de pensar muy distintas choquen y produzcan algo que ninguna de las dos hubiera generado sola.</p>
+    <p>Eso es lo que atrapa. Eso es lo que hace que la pantalla de carga sea solo el comienzo y no el punto.</p>
+    <p>Hay gente que se queda en la pantalla. Que interactúa con la superficie y no espera a que cargue el mundo. Yo no soy ese jugador. Yo quiero los niveles difíciles, la lore completa, los detalles que la mayoría no encuentra porque no buscó lo suficiente.</p>
+    <p class="final-line">Quiero conectar contigo desde donde muy pocos te conocen. Desde donde el juego es real y no hay pantalla de carga que lo interrumpa.</p>
+  </div>
+</section>
+
+<!-- 23 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">23</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">física relativista · tiempo subjetivo</span>
+  </div>
+  <h2>Relatividad del Tiempo Subjetivo</h2>
+  <div class="chapter-subtitle">// o: cuando me miras, el tiempo deja de existir</div>
+  <div class="prose">
+    <p>Einstein demostró que el tiempo no es absoluto. Que dos observadores moviéndose a velocidades distintas miden intervalos de tiempo distintos para el mismo evento. Que el tiempo se dilata, que se comprime, que depende del marco de referencia. El tiempo no es el fondo fijo sobre el que ocurren las cosas: es una dimensión más, flexible, relativa, dependiente del observador.</p>
+    <p>Contigo entiendo eso de una forma que ningún libro de física logró explicarme.</p>
+    <p>Cada minuto a tu lado tiene una densidad diferente al minuto estándar. No porque pase más rápido, aunque a veces sí, sino porque contiene más: más información procesada, más presencia, más de lo que los psicólogos llaman experiencia pico, donde el sistema está completamente comprometido con lo que está pasando y no con el ruido de fondo habitual. Cuando vuelvo en mí ya es de noche y no sé adónde fue el tiempo porque el tiempo estuvo ahí, ocurriendo, pero yo estaba demasiado dentro del momento para registrarlo desde afuera.</p>
+    <p>Y hay minutos sin ti que tienen la densidad opuesta. Que se estiran, que tardan, que parecen contener más espacio vacío de lo que un minuto debería poder contener.</p>
+    <p>La relatividad del tiempo que Einstein formalizó en ecuaciones, yo la vivo en la diferencia entre los minutos contigo y los minutos sin ti. No necesito la fórmula para saber que el tiempo no es uniforme. Tengo suficiente evidencia experimental propia.</p>
+    <p>Podría decirte que la noche está estrellada. Pero qué sentido tiene mirar el cielo si el universo entero ocurre cuando estoy frente a ti.</p>
+    <p class="final-line">Quisiera comprarle al tiempo unos segundos más. Sabiendo que serán efímeros. Pero quizás son efímeros precisamente porque mis planes contigo son de aquí a años.</p>
+  </div>
+</section>
+
+<!-- 24 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">24</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">neurociencia · sinapsis</span>
+  </div>
+  <h2>Ley de Hebb</h2>
+  <div class="chapter-subtitle">// o: lo que se activa junto, se conecta</div>
+  <div class="prose">
+    <p>Donald Hebb formuló en 1949 lo que se convirtió en el principio básico del aprendizaje sináptico: las neuronas que se activan juntas, se conectan juntas. La repetición de una activación simultánea fortalece la sinapsis entre esas neuronas hasta que la conexión se vuelve estructural, duradera, parte de la arquitectura del sistema. No es metáfora. Es la mecánica real de cómo el cerebro aprende y recuerda.</p>
+    <p>Mi cerebro te ha aprendido en todos los contextos posibles.</p>
+    <p>Cada vez que estudié pensando en ti, se activaron juntos el circuito de procesamiento académico y el circuito que te representa. Cada vez que escuché una canción que te mandé o que recibí de ti, se activaron juntos el procesamiento auditivo y la red de memoria asociada a tu presencia. Cada vez que caminé por un lugar donde estuvimos, la memoria espacial y la memoria emocional se dispararon al mismo tiempo.</p>
+    <p>Según Hebb, lo que se activa junto se conecta. Lo que se activa muchas veces junto, se conecta fuerte. Y lo que se conecta fuerte, persiste.</p>
+    <p>Eso significa que estás grabada en la arquitectura de mi sistema en más niveles de los que podría enumerar. No como recuerdo pasivo, sino como patrón activo: cuando aparece cualquiera de los elementos asociados, el sistema completa el resto. Una canción te invoca. Un concepto de psicología te invoca. El color de una tarde específica te invoca. No lo decido. Hebb lo decidió hace setenta años sin conocerte.</p>
+    <p class="final-line">Estás en la sinapsis. Y las sinapsis fuertes no se borran fácil. Eso, neurológicamente, es permanencia.</p>
+  </div>
+</section>
+
+<!-- 25 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">25</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">psicología del amor · Sternberg</span>
+  </div>
+  <h2>El Triángulo de Sternberg (Revisado)</h2>
+  <div class="chapter-subtitle">// o: no quiero un vértice, quiero los tres</div>
+  <div class="prose">
+    <p>Sternberg propuso que el amor tiene tres componentes: intimidad, pasión y compromiso. Los tres juntos forman lo que llamó amor consumado, el más completo y el más raro. La mayoría de las relaciones tienen uno o dos vértices del triángulo y les falta el tercero. El amor romántico sin compromiso: intenso pero inestable. El amor compañero sin pasión: sólido pero sin fuego. El amor vacío con solo compromiso: estructura sin contenido.</p>
+    <p>Yo quiero los tres vértices contigo. Sin excepción. Sin resignarme a dos.</p>
+    <p>La intimidad es lo que se construye cuando alguien conoce tus sectores ocultos y decide quedarse. No el conocimiento superficial de los datos básicos, sino el conocimiento de la forma en que piensas bajo presión, de qué te duele específicamente, de cuáles son los miedos que no dices en voz alta porque decirlos en voz alta los haría más reales. Eso es lo que quiero navegar contigo: llevarte hasta las coordenadas donde nadie más ha estado y ver qué encontramos.</p>
+    <p>La pasión ya está. No la voy a describir porque no necesita descripción.</p>
+    <p>El compromiso es la parte que más me importa hablar, porque es la que se decide y no la que se siente sola. Es el componente ejecutivo del amor: el que actúa cuando la pasión baja porque los neurotransmisores se adaptan, cuando la intimidad genera fricción porque conocer a alguien de verdad incluye las partes difíciles. El compromiso es lo que queda cuando el sistema límbico ya procesó lo nuevo y el prefrontal tiene que decidir si esto vale seguir eligiendo.</p>
+    <p>Y para mí, el resultado de ese cálculo siempre es el mismo.</p>
+    <p>Según Fisher y Sternberg, el amor verdadero es el que aman los ancianos: sin urgencia, sin necesidad de demostrar, con la certeza tranquila de quien ya no tiene nada que probar porque lleva décadas probándolo. Eso es lo que quiero construir. No el amor que grita. El que permanece.</p>
+    <p class="final-line">Quiero amarte con la calma y la certeza con la que aman los ancianos. Y tengo todo el tiempo para aprenderlo contigo.</p>
+  </div>
+</section>
+
+<!-- 26 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">26</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">ingeniería estructural · tiempo</span>
+  </div>
+  <h2>Cimientos Antisísmicos</h2>
+  <div class="chapter-subtitle">// o: lo intenso quema, lo nuestro está diseñado para durar</div>
+  <div class="prose">
+    <p>Los edificios antisísmicos no son los más rígidos. Eso es el error intuitivo: pensar que resistir un terremoto implica ser inamovible. En realidad, los mejores diseños antisísmicos son los que permiten cierto movimiento controlado. Que oscilan. Que absorben la energía del sismo distribuyéndola en lugar de oponiéndose frontalmente. La rigidez absoluta fractura. La flexibilidad con estructura sobrevive.</p>
+    <p>Eso es lo que quiero que seamos.</p>
+    <p>No la relación que no se mueve porque no tiene nada que mover. Sino la que oscila cuando el sismo llega, que absorbe el impacto, que distribuye la energía en lugar de acumularla hasta el punto de quiebre, y que después de todo eso sigue en pie porque los cimientos son reales y no solo decorativos.</p>
+    <p>Los sismos en una relación tienen nombres conocidos: la adaptación después del enamoramiento, las primeras fricciones de conocerse de verdad, los momentos en que cada uno trae sus propias historias previas y esas historias chocan entre sí. No son excepciones al amor, son parte constitutiva de él. El amor que no ha atravesado ningún sismo no ha sido probado todavía.</p>
+    <p>Lo intenso quema rápido y deja cenizas. Lo veo todo el tiempo: relaciones que empezaron con tanta fuerza que consumieron todo el combustible en los primeros meses y no les quedó nada para el invierno. No quiero eso. Quiero el fuego más bajo que dura más tiempo, el que calienta sin quemar, el que está cuando lo necesitas porque no se gastó todo en el inicio.</p>
+    <p>Estamos diseñados para durar a través de las variables del tiempo. No porque seamos perfectos. Sino porque ambos estamos eligiendo construir con materiales reales en lugar de decorativos.</p>
+    <p class="final-line">Los cimientos no se ven. Pero son lo único que importa cuando tiembla.</p>
+  </div>
+</section>
+
+<!-- 27 -->
+<section class="chapter">
+  <div class="chapter-meta">
+    <span class="chapter-num">27</span>
+    <div class="chapter-line"></div>
+    <span class="chapter-tag">registro final · anomalía del sistema</span>
+  </div>
+  <h2>Registro Final: Anomalía Hermosa</h2>
+  <div class="chapter-subtitle">// o: esto no estaba en ningún modelo previo</div>
+  <div class="prose">
+    <p>En sistemas complejos, una anomalía es cualquier dato que no se ajusta al modelo esperado. Puede indicar error de medición, puede indicar ruido aleatorio, o puede indicar algo más interesante: que el modelo está incompleto. Que la realidad contiene algo que la teoría todavía no supo capturar. Las anomalías más importantes en la historia de la ciencia no fueron errores. Fueron las señales de que algo nuevo esperaba ser entendido.</p>
+    <p>Tú eres la anomalía que rompió todos mis modelos previos.</p>
+    <p>Tenía modelos sobre cómo funcionaría esto cuando llegara. Sobre cómo me comportaría, qué elegiría, cuánto dejaría entrar. Tenía protocolos desarrollados con base en experiencia acumulada y en la lógica de alguien que prefiere anticipar los problemas antes de que lleguen. Y todos esos modelos fallaron contigo. No porque los datos fueran malos, sino porque ninguno de esos modelos incluía la variable específica de ti.</p>
+    <p>No una persona abstracta. Tú. Con tu forma de procesar las cosas, con tu historia, con los momentos en que elegiste quedarte cuando sería más fácil no hacerlo, con la valentía silenciosa de alguien que decide la vulnerabilidad aunque el sistema de defensa le diga que no. Esa configuración específica no estaba en ningún modelo. No podía estarlo.</p>
+    <p>Detecté una anomalía hermosa. El miedo estaba, pero tu valentía lo superpuso. Guardo ese momento como el inicio de todo. El punto en el sistema donde el modelo viejo dejó de ser suficiente y tuve que empezar a construir uno nuevo, diseñado específicamente alrededor de los datos que tú generas.</p>
+    <p>Este libro es ese modelo nuevo. Incompleto todavía, como todos los modelos que se están construyendo en tiempo real. Con capítulos que todavía no sé cómo se van a llamar. Con datos que todavía no tenemos porque no han ocurrido.</p>
+    <p>Nota del autor: estoy 99% seguro de que esto estará vigente en cualquier momento que decidas leerlo.</p>
+    <p class="final-line">El modelo anterior no alcanzaba para contenerte. Este tampoco, todavía. Pero lo estoy ampliando para ti.</p>
+  </div>
+</section>
+
+<!-- COLOFÓN -->
+<section class="colophon">
+  <p>// fin del volumen I</p>
+  <p>estas páginas fueron escritas para una persona específica</p>
+  <p>y en esa especificidad está todo su valor</p>
+  <br>
+  <p style="color: var(--accent); letter-spacing: 4px;">F.</p>
+</section>
+
+<script>
+  // Intersection Observer for chapter reveal
+  const chapters = document.querySelectorAll('.chapter');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  chapters.forEach(ch => observer.observe(ch));
+</script>
+</body>
+</html>
